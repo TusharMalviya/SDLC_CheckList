@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dev Cronos</title>
+    <style>
+      :root {
+        --primary: #1a3c6e;
+        --accent: #2e7d32;
+        --warn: #b71c1c;
+        --light-bg: #f4f6f9;
+        --card-bg: #ffffff;
+        --border: #d0d7e2;
+        --text: #1c1c1c;
+        --sub-text: #4a4a4a;
+        --done-bg: #e8f5e9;
+        --done-text: #1b5e20;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--light-bg);
+        color: var(--text);
+        padding: 30px 20px 60px;
+      }
+
+      header {
+        background: var(--primary);
+        color: #fff;
+        border-radius: 10px;
+        padding: 28px 36px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      header h1 {
+        font-size: 1.6rem;
+        letter-spacing: 0.5px;
+      }
+      header p {
+        font-size: 0.9rem;
+        opacity: 0.85;
+        margin-top: 4px;
+      }
+      .badge {
+        background: #fff;
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 0.85rem;
+        border-radius: 20px;
+        padding: 6px 16px;
+        white-space: nowrap;
+      }
+
+      /* ── Progress bar ── */
+      .progress-wrap {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 24px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+      .progress-label {
+        font-weight: 600;
+        color: var(--primary);
+        min-width: 160px;
+      }
+      .bar-outer {
+        flex: 1;
+        min-width: 200px;
+        background: #e0e0e0;
+        border-radius: 20px;
+        height: 18px;
+        overflow: hidden;
+      }
+      .bar-inner {
+        height: 100%;
+        background: linear-gradient(90deg, #2e7d32, #66bb6a);
+        border-radius: 20px;
+        transition: width 0.4s ease;
+        width: 0%;
+      }
+      .progress-pct {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--accent);
+        min-width: 48px;
+        text-align: right;
+      }
+
+      /* ── Step cards ── */
+      .step-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-left: 5px solid var(--primary);
+        border-radius: 10px;
+        padding: 20px 24px;
+        margin-bottom: 18px;
+        transition: border-left-color 0.25s, background 0.25s;
+      }
+      .step-card.completed {
+        border-left-color: var(--accent);
+        background: var(--done-bg);
+      }
+
+      .step-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+      }
+
+      .step-number {
+        background: var(--primary);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.85rem;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 2px;
+        transition: background 0.25s;
+      }
+      .step-card.completed .step-number {
+        background: var(--accent);
+      }
+
+      .step-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--primary);
+        flex: 1;
+      }
+      .step-card.completed .step-title {
+        color: var(--done-text);
+      }
+
+      /* main checkbox */
+      .main-check {
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        accent-color: var(--accent);
+        flex-shrink: 0;
+      }
+
+      .step-body {
+        margin-top: 14px;
+        padding-left: 46px;
+      }
+
+      /* sub-checklist */
+      .sub-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .sub-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.92rem;
+        color: var(--sub-text);
+      }
+      .sub-list input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: var(--accent);
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .sub-list span.done {
+        text-decoration: line-through;
+        color: #999;
+      }
+
+      /* notes / deliverable tag */
+      .tag {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 4px;
+        padding: 2px 8px;
+        margin-top: 10px;
+      }
+      .tag-deliverable {
+        background: #e3f2fd;
+        color: #0d47a1;
+      }
+      .tag-review {
+        background: #fff3e0;
+        color: #e65100;
+      }
+      .tag-signoff {
+        background: #fce4ec;
+        color: #880e4f;
+      }
+
+      .note {
+        font-size: 0.82rem;
+        color: #666;
+        margin-top: 8px;
+        font-style: italic;
+      }
+
+      /* reviewer chips */
+      .reviewers {
+        margin-top: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .chip {
+        background: #e8eaf6;
+        color: #283593;
+        border-radius: 20px;
+        padding: 3px 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      /* ── Jira Info Panel ── */
+      .jira-panel {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-left: 5px solid var(--primary);
+        border-radius: 10px;
+        padding: 22px 28px;
+        margin-bottom: 24px;
+      }
+      .jira-panel h2 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .jira-panel h2::before {
+        content: "";
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background: var(--primary);
+        border-radius: 50%;
+      }
+      .jira-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 14px 20px;
+      }
+      .jira-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .jira-field label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--primary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .jira-field input {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        font-family: inherit;
+        color: var(--text);
+        background: #fafbfd;
+        width: 100%;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .jira-field input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(26, 60, 110, 0.12);
+      }
+      .jira-field.full-width {
+        grid-column: 1 / -1;
+      }
+
+      /* ── Action Buttons ── */
+      .actions {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 34px;
+      }
+      .actions button {
+        border: none;
+        border-radius: 7px;
+        padding: 11px 28px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.2s, transform 0.1s;
+      }
+      .actions button:active {
+        transform: scale(0.97);
+      }
+      .btn-reset {
+        background: var(--warn);
+        color: #fff;
+      }
+      .btn-reset:hover {
+        background: #c62828;
+      }
+      .btn-html {
+        background: #1565c0;
+        color: #fff;
+      }
+      .btn-html:hover {
+        background: #0d47a1;
+      }
+      .btn-pdf {
+        background: #4a148c;
+        color: #fff;
+      }
+      .btn-pdf:hover {
+        background: #38006b;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 40px;
+        font-size: 0.8rem;
+        color: #999;
+      }
+
+      /* ── Print / PDF ── */
+      @media print {
+        body {
+          background: #fff;
+          padding: 10px;
+          font-size: 11pt;
+        }
+        header {
+          border-radius: 0;
+          padding: 14px 20px;
+        }
+        .jira-panel,
+        .progress-wrap,
+        .step-card {
+          break-inside: avoid;
+        }
+        .actions {
+          display: none !important;
+        }
+        .jira-field input {
+          border: none;
+          border-bottom: 1px solid #ccc;
+          background: transparent;
+          padding: 2px 4px;
+        }
+        .bar-inner {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+        .step-card.completed {
+          background: #e8f5e9 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>Developer Checklist – CRONOS</h1>
+        <p>
+          Standard development process to be followed for every Jira story /
+          task
+        </p>
+      </div>
+      <span class="badge">Version 1.0 &nbsp;|&nbsp; Mar 2026</span>
+    </header>
+
+    <!-- ── JIRA INFO PANEL ── -->
+    <div class="jira-panel">
+      <h2>Jira / Story Details</h2>
+      <div class="jira-grid">
+        <div class="jira-field">
+          <label>Jira Number</label>
+          <input
+            type="text"
+            id="fi-jira-number"
+            placeholder="e.g. DVN-1234"
+            oninput="autoSave()"
+          />
+        </div>
+
+        <div class="jira-field">
+          <label>Jira Title</label>
+          <input
+            type="text"
+            id="fi-jira-title"
+            placeholder="Short description of the story"
+            oninput="autoSave()"
+          />
+        </div>
+
+        <div class="jira-field">
+          <label>Development Start Date</label>
+          <input type="date" id="fi-date" oninput="autoSave()" />
+        </div>
+
+        <div class="jira-field">
+          <label>Developer Name</label>
+          <input
+            type="text"
+            id="fi-dev-name"
+            placeholder="Full name of the developer"
+            oninput="autoSave()"
+          />
+        </div>
+
+        <div class="jira-field full-width">
+          <label>Jira Link</label>
+          <input
+            type="url"
+            id="fi-jira-link"
+            placeholder="Paste Jira ticket URL here  –  e.g. https://jira.company.com/browse/DVN-1234"
+            oninput="autoSave()"
+          />
+        </div>
+
+        <div class="jira-field full-width">
+          <label>FSD / Doc Info Link</label>
+          <input
+            type="url"
+            id="fi-fsd-link"
+            placeholder="Paste FSD / Confluence / SharePoint document link here"
+            oninput="autoSave()"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROGRESS ── -->
+    <div class="progress-wrap">
+      <span class="progress-label">Overall Progress</span>
+      <div class="bar-outer">
+        <div class="bar-inner" id="progressBar"></div>
+      </div>
+      <span class="progress-pct" id="progressPct">0 %</span>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 1
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-1">
+      <div class="step-header">
+        <span class="step-number">1</span>
+        <span class="step-title">Jira Requirement Understanding</span>
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-1"
+          onchange="toggleCard(1)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(1)" /><span
+              >Read the Jira story / task in full detail</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(1)" /><span
+              >Understand acceptance criteria and definition of done</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(1)" /><span
+              >Clarify open questions with the Business Analyst / Product
+              Owner</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(1)" /><span
+              >Link related Jira tickets (dependencies, sub-tasks, bugs)</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(1)" /><span
+              >Estimate story points / effort and update Jira</span
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 2
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-2">
+      <div class="step-header">
+        <span class="step-number">2</span>
+        <span class="step-title"
+          >FSD (Functional Specification Document) Understanding</span
+        >
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-2"
+          onchange="toggleCard(2)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(2)" /><span
+              >Locate and read the relevant FSD sections</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(2)" /><span
+              >Cross-check the FSD against the Jira story scope</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(2)" /><span
+              >Identify business rules, validations, and data flows
+              described</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(2)" /><span
+              >Note any ambiguities; raise them with the BA / Tech Lead</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(2)" /><span
+              >Confirm FSD version used is the latest approved version</span
+            >
+          </li>
+        </ul>
+        <span class="tag tag-deliverable"
+          >Deliverable: annotated FSD reference saved in release track
+          folder</span
+        >
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 3
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-3">
+      <div class="step-header">
+        <span class="step-number">3</span>
+        <span class="step-title">Initial Analysis of the Requirement</span>
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-3"
+          onchange="toggleCard(3)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(3)" /><span
+              >Identify modules / services impacted by the change</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(3)" /><span
+              >Review existing code in the impacted areas</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(3)" /><span
+              >List upstream and downstream dependencies</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(3)" /><span
+              >Identify DB schema changes required (if any)</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(3)" /><span
+              >Highlight risks and assumptions</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(3)" /><span
+              ><strong>Create Initial Impact Analysis file</strong> and save to
+              release track folder</span
+            >
+          </li>
+        </ul>
+        <span class="tag tag-deliverable"
+          >Deliverable: Initial_Impact_Analysis_&lt;JiraID&gt;.xlsx /
+          .docx</span
+        >
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 4
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-4">
+      <div class="step-header">
+        <span class="step-number">4</span>
+        <span class="step-title">Work Breakdown Structure (WBS)</span>
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-4"
+          onchange="toggleCard(4)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(4)" /><span
+              >Break the requirement into tasks (analysis, design, code, test,
+              review)</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(4)" /><span
+              >Assign effort estimate (hours/days) to each task</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(4)" /><span
+              >Plan tasks on a daily basis with start and end dates</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(4)" /><span
+              >Identify blockers / dependencies between tasks</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(4)" /><span
+              >Update WBS daily with actual vs planned progress</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(4)" /><span
+              >Share WBS with Tech Lead for review and approval</span
+            >
+          </li>
+        </ul>
+        <span class="tag tag-deliverable"
+          >Deliverable: WBS_&lt;JiraID&gt;.xlsx – updated daily</span
+        >
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 5
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-5">
+      <div class="step-header">
+        <span class="step-number">5</span>
+        <span class="step-title">Technical Design Document (TDD)</span>
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-5"
+          onchange="toggleCard(5)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(5)" /><span
+              >Start TDD as soon as development begins (living document)</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(5)" /><span
+              >Document high-level architecture / design decisions</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(5)" /><span
+              >Include class / sequence / flow diagrams where needed</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(5)" /><span
+              >Document DB changes (DDL scripts, ER diagram)</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(5)" /><span
+              >Capture API contracts / service interfaces changed</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(5)" /><span
+              >Keep TDD updated throughout development</span
+            >
+          </li>
+        </ul>
+        <span class="tag tag-deliverable"
+          >Deliverable: TDD_&lt;JiraID&gt;_v1.0.docx</span
+        >
+        <p class="note">
+          Note: TDD is a living document – continue updating through Step 10.
+        </p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 6
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-6">
+      <div class="step-header">
+        <span class="step-number">6</span>
+        <span class="step-title">Code Implementation</span>
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-6"
+          onchange="toggleCard(6)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(6)" /><span
+              >Create a feature branch from the correct base branch</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(6)" /><span
+              >Follow project coding standards and naming conventions</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(6)" /><span
+              >Implement the changes as per TDD and FSD</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(6)" /><span
+              >Add meaningful comments / Javadoc where applicable</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(6)" /><span
+              >Ensure no hardcoded values (use configuration / constants)</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(6)" /><span
+              >Handle exceptions and edge cases properly</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(6)" /><span
+              >Commit incrementally with meaningful commit messages</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(6)" /><span
+              >Resolve merge conflicts with the base branch</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(6)" /><span
+              >Verify the build is clean (no compile errors / warnings)</span
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 7
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-7">
+      <div class="step-header">
+        <span class="step-number">7</span>
+        <span class="step-title">Unit Testing (UT)</span>
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-7"
+          onchange="toggleCard(7)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(7)" /><span
+              >Write unit tests for all newly developed code paths</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(7)" /><span
+              >Write / update tests for all impacted existing areas</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(7)" /><span
+              >Cover positive, negative, and boundary test cases</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(7)" /><span
+              >Achieve minimum required code coverage (check project
+              threshold)</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(7)" /><span
+              >Run all existing tests – ensure none are broken</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(7)" /><span
+              >Capture test execution screenshots / reports as proof</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(7)" /><span
+              ><strong>Create UT Document</strong> with all test cases and proof
+              screenshots</span
+            >
+          </li>
+        </ul>
+        <span class="tag tag-deliverable"
+          >Deliverable: UT_Document_&lt;JiraID&gt;.xlsx / .docx (includes test
+          cases + screenshots)</span
+        >
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 8
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-8">
+      <div class="step-header">
+        <span class="step-number">8</span>
+        <span class="step-title">Code Review</span>
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-8"
+          onchange="toggleCard(8)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(8)" /><span
+              >Self-review the code before scheduling the review session</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(8)" /><span
+              >Schedule a code review call with the reviewer(s)</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(8)" /><span
+              ><strong>Record the review session</strong> (Teams / Zoom
+              recording)</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(8)" /><span
+              >Walk the reviewer through the changes and the TDD</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(8)" /><span
+              >Document all review comments and action items</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(8)" /><span
+              >Address all comments and get reviewer confirmation</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(8)" /><span
+              >Save recording link / file to release track folder</span
+            >
+          </li>
+        </ul>
+        <div class="reviewers">
+          <span
+            style="
+              font-size: 0.82rem;
+              font-weight: 600;
+              color: #555;
+              align-self: center;
+            "
+            >Reviewers:</span
+          >
+          <span class="chip">Prasanna</span>
+          <span class="chip">Shilpa</span>
+          <span class="chip">Vishal</span>
+        </div>
+        <span
+          class="tag tag-review"
+          style="margin-top: 10px; display: inline-block"
+          >Review session must be recorded</span
+        >
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 9
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-9">
+      <div class="step-header">
+        <span class="step-number">9</span>
+        <span class="step-title"
+          >Full Detailed Impact Analysis (Post-Development)</span
+        >
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-9"
+          onchange="toggleCard(9)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(9)" /><span
+              >List all files / classes / tables changed with the reason</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(9)" /><span
+              >Document all new components / services introduced</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(9)" /><span
+              >Capture all impacted downstream / upstream systems</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(9)" /><span
+              >Describe regression risk areas and mitigation</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(9)" /><span
+              >Include DB migration scripts and rollback plan</span
+            >
+          </li>
+          <li>
+            <input type="checkbox" class="sub-cb" onchange="syncMain(9)" /><span
+              >Compare against Initial Impact Analysis (Step 3) – note
+              deviations</span
+            >
+          </li>
+        </ul>
+        <span class="tag tag-deliverable"
+          >Deliverable: Full_Impact_Analysis_&lt;JiraID&gt;_PostDev.xlsx /
+          .docx</span
+        >
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 10
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-10">
+      <div class="step-header">
+        <span class="step-number">10</span>
+        <span class="step-title">TDD &amp; Impact Analysis Review</span>
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-10"
+          onchange="toggleCard(10)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(10)"
+            /><span>Finalise the TDD with all implementation details</span>
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(10)"
+            /><span
+              >Present TDD &amp; Full Impact Analysis to Tech Lead /
+              reviewer</span
+            >
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(10)"
+            /><span
+              >Incorporate review feedback into TDD and Impact Analysis</span
+            >
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(10)"
+            /><span
+              >Get TDD &amp; Impact Analysis approved (at least one approver
+              signature)</span
+            >
+          </li>
+        </ul>
+        <div class="reviewers">
+          <span
+            style="
+              font-size: 0.82rem;
+              font-weight: 600;
+              color: #555;
+              align-self: center;
+            "
+            >Reviewers:</span
+          >
+          <span class="chip">Prasanna</span>
+          <span class="chip">Shilpa</span>
+          <span class="chip">Vishal</span>
+        </div>
+        <span class="tag tag-deliverable"
+          >Deliverable: TDD_&lt;JiraID&gt;_Final.docx |
+          Full_Impact_Analysis_Final.docx</span
+        >
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 11
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-11">
+      <div class="step-header">
+        <span class="step-number">11</span>
+        <span class="step-title">Sign-Off Mail</span>
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-11"
+          onchange="toggleCard(11)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(11)"
+            /><span
+              >Request sign-off mail from the reviewer after code review is
+              complete</span
+            >
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(11)"
+            /><span
+              >Mail must include Jira ID, story title, review date, and reviewer
+              name</span
+            >
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(11)"
+            /><span
+              >Mail must confirm all review comments have been resolved</span
+            >
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(11)"
+            /><span
+              >Save the sign-off mail (as .msg / .eml / PDF) to release track
+              folder</span
+            >
+          </li>
+        </ul>
+        <div class="reviewers">
+          <span
+            style="
+              font-size: 0.82rem;
+              font-weight: 600;
+              color: #555;
+              align-self: center;
+            "
+            >Sign-off from:</span
+          >
+          <span class="chip">Prasanna</span>
+          <span class="chip">Shilpa</span>
+          <span class="chip">Vishal</span>
+        </div>
+        <span class="tag tag-signoff"
+          >Sign-off mail is mandatory before release</span
+        >
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+     STEP 12
+════════════════════════════════════════════════ -->
+    <div class="step-card" id="card-12">
+      <div class="step-header">
+        <span class="step-number">12</span>
+        <span class="step-title"
+          >Place All Documents in Release Track Folder</span
+        >
+        <input
+          type="checkbox"
+          class="main-check"
+          id="main-12"
+          onchange="toggleCard(12)"
+        />
+      </div>
+      <div class="step-body">
+        <ul class="sub-list">
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(12)"
+            /><span>Initial Impact Analysis file</span>
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(12)"
+            /><span>WBS Excel file (final version)</span>
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(12)"
+            /><span>TDD – Final version</span>
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(12)"
+            /><span>UT Document with all test proofs</span>
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(12)"
+            /><span>Code review session recording (link or file)</span>
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(12)"
+            /><span>Full Post-Development Impact Analysis</span>
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(12)"
+            /><span>Sign-off mail from reviewer</span>
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(12)"
+            /><span>FSD reference (annotated, if applicable)</span>
+          </li>
+          <li>
+            <input
+              type="checkbox"
+              class="sub-cb"
+              onchange="syncMain(12)"
+            /><span
+              >Confirm folder path follows the release naming convention</span
+            >
+          </li>
+        </ul>
+        <span class="tag tag-deliverable"
+          >All documents verified and saved – Release ready</span
+        >
+      </div>
+    </div>
+
+    <!-- ── ACTIONS ── -->
+    <div class="actions">
+      <button class="btn-html" onclick="downloadHTMLReport()">
+        &#11015; Download Progress Report (.html)
+      </button>
+      <button class="btn-pdf" onclick="window.print()">
+        &#128438; Print / Save as PDF
+      </button>
+      <button class="btn-reset" onclick="resetAll()">
+        &#8635; Reset Checklist
+      </button>
+    </div>
+
+    <footer>
+      CRONOS &nbsp;|&nbsp; Developer Checklist v1.0 &nbsp;|&nbsp; March 2026
+    </footer>
+
+    <script>
+      const TOTAL_STEPS = 12;
+      const INFO_FIELDS = [
+        "fi-jira-number",
+        "fi-jira-title",
+        "fi-date",
+        "fi-dev-name",
+        "fi-jira-link",
+        "fi-fsd-link",
+      ];
+
+      /* ── Progress bar ── */
+      function updateProgress() {
+        const checked = document.querySelectorAll(".main-check:checked").length;
+        const pct = Math.round((checked / TOTAL_STEPS) * 100);
+        document.getElementById("progressBar").style.width = pct + "%";
+        document.getElementById("progressPct").textContent = pct + " %";
+      }
+
+      /* ── Toggle full card (main checkbox) ── */
+      function toggleCard(n) {
+        const card = document.getElementById("card-" + n);
+        const main = document.getElementById("main-" + n);
+        const subCbs = card.querySelectorAll(".sub-cb");
+        if (main.checked) {
+          card.classList.add("completed");
+          subCbs.forEach((cb) => {
+            cb.checked = true;
+            cb.nextElementSibling.classList.add("done");
+          });
+        } else {
+          card.classList.remove("completed");
+          subCbs.forEach((cb) => {
+            cb.checked = false;
+            cb.nextElementSibling.classList.remove("done");
+          });
+        }
+        updateProgress();
+        autoSave();
+      }
+
+      /* ── Sub-checkbox → sync main ── */
+      function syncMain(n) {
+        const card = document.getElementById("card-" + n);
+        const main = document.getElementById("main-" + n);
+        const subCbs = Array.from(card.querySelectorAll(".sub-cb"));
+        subCbs.forEach((cb) =>
+          cb.nextElementSibling.classList.toggle("done", cb.checked)
+        );
+        const allChecked = subCbs.every((cb) => cb.checked);
+        main.checked = allChecked;
+        card.classList.toggle("completed", allChecked);
+        updateProgress();
+        autoSave();
+      }
+
+      /* ── Auto-save to localStorage ── */
+      function getStorageKey() {
+        const num = document.getElementById("fi-jira-number").value.trim();
+        return "dvn_checklist_" + (num || "default");
+      }
+      function autoSave() {
+        const state = { fields: {}, subCbs: [] };
+        INFO_FIELDS.forEach((id) => {
+          state.fields[id] = document.getElementById(id).value;
+        });
+        state.subCbs = Array.from(document.querySelectorAll(".sub-cb")).map(
+          (cb) => cb.checked
+        );
+        state.mainCbs = {};
+        for (let n = 1; n <= TOTAL_STEPS; n++) {
+          const m = document.getElementById("main-" + n);
+          if (m) state.mainCbs["main-" + n] = m.checked;
+        }
+        try {
+          localStorage.setItem(getStorageKey(), JSON.stringify(state));
+        } catch (e) {}
+      }
+      function loadSaved(key) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (!raw) return false;
+          const state = JSON.parse(raw);
+          if (state.fields)
+            INFO_FIELDS.forEach((id) => {
+              if (state.fields[id] !== undefined)
+                document.getElementById(id).value = state.fields[id];
+            });
+          if (state.mainCbs)
+            Object.entries(state.mainCbs).forEach(([id, val]) => {
+              const el = document.getElementById(id);
+              if (el) el.checked = val;
+            });
+          if (state.subCbs) {
+            const allCbs = Array.from(document.querySelectorAll(".sub-cb"));
+            state.subCbs.forEach((val, i) => {
+              if (allCbs[i]) {
+                allCbs[i].checked = val;
+                allCbs[i].nextElementSibling.classList.toggle("done", val);
+              }
+            });
+          }
+          for (let n = 1; n <= TOTAL_STEPS; n++) {
+            const m = document.getElementById("main-" + n);
+            if (m)
+              document
+                .getElementById("card-" + n)
+                .classList.toggle("completed", m.checked);
+          }
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      /* ── Reset ── */
+      function resetAll() {
+        if (!confirm("Reset the entire checklist? All progress will be lost."))
+          return;
+        document
+          .querySelectorAll('input[type="checkbox"]')
+          .forEach((cb) => (cb.checked = false));
+        document
+          .querySelectorAll(".step-card")
+          .forEach((c) => c.classList.remove("completed"));
+        document
+          .querySelectorAll(".sub-list span")
+          .forEach((s) => s.classList.remove("done"));
+        INFO_FIELDS.forEach((id) => (document.getElementById(id).value = ""));
+        try {
+          localStorage.removeItem(getStorageKey());
+        } catch (e) {}
+        updateProgress();
+      }
+
+      /* ── Download HTML Progress Report ── */
+      function downloadHTMLReport() {
+        const jiraNum =
+          document.getElementById("fi-jira-number").value.trim() || "NoJira";
+        const jiraTitle =
+          document.getElementById("fi-jira-title").value.trim() || "Untitled";
+        const devName =
+          document.getElementById("fi-dev-name").value.trim() || "—";
+        const devDate = document.getElementById("fi-date").value || "—";
+        const jiraLink =
+          document.getElementById("fi-jira-link").value.trim() || "";
+        const fsdLink =
+          document.getElementById("fi-fsd-link").value.trim() || "";
+        const doneCount = document.querySelectorAll(
+          ".main-check:checked"
+        ).length;
+        const pct = Math.round((doneCount / TOTAL_STEPS) * 100);
+        const now = new Date().toLocaleString("en-GB");
+
+        const stepTitles = [
+          "Jira Requirement Understanding",
+          "FSD Understanding",
+          "Initial Analysis of the Requirement",
+          "Work Breakdown Structure (WBS)",
+          "Technical Design Document (TDD)",
+          "Code Implementation",
+          "Unit Testing (UT)",
+          "Code Review",
+          "Full Detailed Impact Analysis (Post-Dev)",
+          "TDD & Impact Analysis Review",
+          "Sign-Off Mail",
+          "Place All Documents in Release Track Folder",
+        ];
+
+        let stepRows = "";
+        for (let n = 1; n <= TOTAL_STEPS; n++) {
+          const main = document.getElementById("main-" + n);
+          const card = document.getElementById("card-" + n);
+          const subCbs = Array.from(card.querySelectorAll(".sub-cb"));
+          const done = subCbs.filter((c) => c.checked).length;
+          const total = subCbs.length;
+          const pctStep = Math.round((done / total) * 100);
+          const colour = main.checked
+            ? "#2e7d32"
+            : done > 0
+            ? "#e65100"
+            : "#9e9e9e";
+          const status = main.checked
+            ? "&#10003; COMPLETE"
+            : done > 0
+            ? "&#9654; IN PROGRESS"
+            : "&#9711; NOT STARTED";
+          let subRows = "";
+          subCbs.forEach((cb) => {
+            const label = cb.nextElementSibling.textContent.trim();
+            const tick = cb.checked ? "&#10003;" : "&#9711;";
+            const sty = cb.checked ? "color:#2e7d32" : "color:#bbb";
+            subRows += `<tr><td colspan="4" style="padding:3px 6px 3px 32px;font-size:10pt;${sty}">${tick}&nbsp;${label}</td></tr>`;
+          });
+          stepRows += `
+        <tr style="background:${
+          main.checked ? "#e8f5e9" : done > 0 ? "#fff8e1" : "#fff"
+        }">
+          <td style="padding:8px 10px;font-weight:700;color:#1a3c6e;text-align:center">${n}</td>
+          <td style="padding:8px 10px;font-weight:700;color:#1a3c6e">${
+            stepTitles[n - 1]
+          }</td>
+          <td style="padding:8px 10px;text-align:center;color:${colour};font-weight:700;white-space:nowrap">${status}</td>
+          <td style="padding:8px 10px;text-align:center;color:${colour}">${done}/${total} (${pctStep}%)</td>
+        </tr>${subRows}
+        <tr><td colspan="4" style="height:3px;background:#f4f6f9"></td></tr>`;
+        }
+
+        const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/>
+<title>Progress Report – ${jiraNum}</title>
+<style>
+  body{font-family:'Segoe UI',sans-serif;background:#f4f6f9;color:#1c1c1c;padding:28px 22px;}
+  h1{color:#1a3c6e;margin-bottom:4px;}
+  .info-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .info-box{background:#fff;border:1px solid #d0d7e2;border-radius:8px;padding:12px 18px;flex:1;min-width:200px;}
+  .info-box label{font-size:9pt;color:#1a3c6e;font-weight:700;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px;}
+  .info-box span{font-size:11pt;}
+  .bar-outer{background:#e0e0e0;border-radius:20px;height:20px;overflow:hidden;margin:10px 0;}
+  .bar-inner{height:100%;background:linear-gradient(90deg,#2e7d32,#66bb6a);border-radius:20px;width:${pct}%;print-color-adjust:exact;-webkit-print-color-adjust:exact;}
+  table{border-collapse:collapse;width:100%;background:#fff;border:1px solid #d0d7e2;border-radius:8px;overflow:hidden;font-size:11pt;}
+  th{background:#1a3c6e;color:#fff;padding:10px;text-align:left;}
+  a{color:#1565c0;}
+  @media print{body{background:#fff;padding:8px;}.bar-inner{print-color-adjust:exact;-webkit-print-color-adjust:exact;}}
+</style></head><body>
+  <h1>Development Progress Report</h1>
+  <p style="color:#888;font-size:9pt;margin-bottom:18px">Generated: ${now} &nbsp;|&nbsp; Cronos NOV</p>
+  <div class="info-row">
+    <div class="info-box"><label>Jira Number</label><span>${jiraNum}</span></div>
+    <div class="info-box"><label>Jira Title</label><span>${jiraTitle}</span></div>
+    <div class="info-box"><label>Developer</label><span>${devName}</span></div>
+    <div class="info-box"><label>Start Date</label><span>${devDate}</span></div>
+    ${
+      jiraLink
+        ? `<div class="info-box" style="flex-basis:100%"><label>Jira Link</label><span><a href="${jiraLink}" target="_blank">${jiraLink}</a></span></div>`
+        : ""
+    }
+    ${
+      fsdLink
+        ? `<div class="info-box" style="flex-basis:100%"><label>FSD / Doc Link</label><span><a href="${fsdLink}" target="_blank">${fsdLink}</a></span></div>`
+        : ""
+    }
+  </div>
+  <div style="background:#fff;border:1px solid #d0d7e2;border-radius:8px;padding:16px 20px;margin-bottom:22px">
+    <strong style="color:#1a3c6e;font-size:13pt">Overall Progress: ${pct}%</strong>
+    <span style="color:#888;font-size:9pt"> &nbsp;(${doneCount} of ${TOTAL_STEPS} steps complete)</span>
+    <div class="bar-outer"><div class="bar-inner"></div></div>
+  </div>
+  <table>
+    <thead><tr><th style="width:36px">#</th><th>Step</th><th style="text-align:center;width:160px">Status</th><th style="text-align:center;width:110px">Sub-tasks</th></tr></thead>
+    <tbody>${stepRows}</tbody>
+  </table>
+  <p style="margin-top:22px;font-size:8pt;color:#aaa;text-align:center">Cronos NOV &nbsp;|&nbsp; Developer Checklist v1.0 &nbsp;|&nbsp; ${now}</p>
+</body></html>`;
+
+        const blob = new Blob([html], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Progress_Report_${jiraNum}_${
+          devDate !== "—" ? devDate : "NoDate"
+        }.html`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+          a.remove();
+        }, 1000);
+      }
+
+      /* ── Init ── */
+      (function init() {
+        const dateField = document.getElementById("fi-date");
+        if (!dateField.value)
+          dateField.value = new Date().toISOString().split("T")[0];
+        loadSaved("dvn_checklist_default");
+        updateProgress();
+      })();
+    </script>
+  </body>
+</html>
