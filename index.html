@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Jira Evolution Hub</title>
+  <title>Story Tracker – Jira Evolution Hub</title>
   <link rel="stylesheet" href="shared.css"/>
   <style>
     .role-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin:24px 0}
@@ -56,7 +56,7 @@
 
 <header>
   <div>
-    <h1>JIRA &ndash; Evolution Hub</h1>
+    <h1>Story Tracker &ndash; Jira Evolution Hub</h1>
     <p>Central hub &bull; Fill each role page separately &bull; Merge for the final report</p>
   </div>
   <span class="badge">v3.0 &nbsp;|&nbsp; Mar 2026</span>
@@ -157,13 +157,13 @@
   <button class="btn-reset" onclick="resetHub()">&#8635; Reset Hub</button>
 </div>
 
-<footer>&nbsp; Jira Evolution Hub v3.0 &nbsp;|&nbsp; March 2026</footer>
+<footer>Story Tracker &nbsp;|&nbsp; Jira Evolution Hub v3.0 &nbsp;|&nbsp; March 2026</footer>
 
 <script>
 const HUB_IDS = ['fi-jira-number','fi-jira-title','fi-version','fi-jira-link','fi-fsd-link','fi-ceb-link'];
 const roleData = {ba:null, dev:null, tester:null};
 
-function hubKey(){ return 'cronos_hub_'+(document.getElementById('fi-jira-number')?.value.trim()||'default'); }
+function hubKey(){ return 'tracker_hub_'+(document.getElementById('fi-jira-number')?.value.trim()||'default'); }
 
 function autoSave(){
   const s={};
@@ -353,7 +353,7 @@ function downloadFinalReport(){
   @media print{body{background:#fff}}
 </style></head><body>
 <h1>&#128202; Evolution Final Report</h1>
-<p style="color:#888;font-size:8pt;margin-bottom:16px">Generated: ${now} &nbsp;|&nbsp; Jira v3.0</p>
+<p style="color:#888;font-size:8pt;margin-bottom:16px">Generated: ${now} &nbsp;|&nbsp; Story Tracker v3.0</p>
 <div class="meta">
   <div class="mb"><label>Jira</label><div class="mb-val">${jiraNum}</div></div>
   <div class="mb"><label>Title</label><div class="mb-val">${jiraTitle}</div></div>
@@ -426,7 +426,7 @@ ${(tester.defects&&tester.defects.length)?`<div class="sec">
   <div class="bar-outer"><div class="bar-test" style="width:${testPct}%"></div></div>
 </div>
 
-<p style="margin-top:20px;font-size:8pt;color:#aaa;text-align:center">Jira &nbsp;|&nbsp; Evolution Tracker v3.0 &nbsp;|&nbsp; ${now}</p>
+<p style="margin-top:20px;font-size:8pt;color:#aaa;text-align:center">Story Tracker &nbsp;|&nbsp; Evolution Tracker v3.0 &nbsp;|&nbsp; ${now}</p>
 </body></html>`;
 
   const blob=new Blob([html],{type:'text/html'});
@@ -453,5 +453,3 @@ function resetHub(){
 </script>
 </body>
 </html>
-
-

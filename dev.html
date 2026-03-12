@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>CRONOS – Developer</title>
+  <title>Story Tracker – Developer</title>
   <link rel="stylesheet" href="shared.css"/>
 </head>
 <body>
@@ -15,7 +15,7 @@
     <h1>&#128187; Developer</h1>
     <p>9-step checklist &bull; Code progress &bull; Review &bull; Sign-off</p>
   </div>
-  <span class="badge" style="color:var(--dev)">Dev Page &nbsp;|&nbsp; CRONOS v3.0</span>
+  <span class="badge" style="color:var(--dev)">Dev Page &nbsp;|&nbsp; Story Tracker v3.0</span>
 </header>
 
 <!-- ══ DEV INFO ══ -->
@@ -174,7 +174,7 @@
   <button class="btn-reset" onclick="resetDev()">&#8635; Reset</button>
 </div>
 
-<footer>CRONOS &nbsp;|&nbsp; Developer Page &nbsp;|&nbsp; March 2026</footer>
+<footer>Story Tracker &nbsp;|&nbsp; Developer Page &nbsp;|&nbsp; March 2026</footer>
 
 <script>
 const DEV_STEPS=9;
@@ -182,7 +182,7 @@ const DEV_IDS=['dev-name','dev-jira','dev-start','dev-end','dev-reviewer','dev-r
   'dl-wbs','dl-tdd','dl-ut','dl-fullimpact','dl-signoff'];
 const CB_IDS=Array.from({length:DEV_STEPS},(_,i)=>'dc-'+(i+1));
 
-function storageKey(){return 'cronos_dev_'+(document.getElementById('dev-jira')?.value.trim()||'default');}
+function storageKey(){return 'tracker_dev_'+(document.getElementById('dev-jira')?.value.trim()||'default');}
 
 function devCheck(){
   const done=CB_IDS.filter(id=>document.getElementById(id)?.checked).length;
@@ -333,7 +333,7 @@ function downloadDevHtml(){
   @media print{body{background:#fff}}
 </style></head><body>
 <h1>&#128187; Developer Report</h1>
-<p style="color:#888;font-size:8pt;margin-bottom:16px">Generated: ${now} &nbsp;|&nbsp; CRONOS v3.0</p>
+<p style="color:#888;font-size:8pt;margin-bottom:16px">Generated: ${now} &nbsp;|&nbsp; Story Tracker v3.0</p>
 <div class="meta">
   <div class="mb"><label>Jira</label><div class="mb-val">${jira}</div></div>
   <div class="mb"><label>Developer</label><div class="mb-val">${esc(name)}</div></div>
@@ -352,7 +352,7 @@ ${(signoffLink||signoffImg)?`<div class="sec"><h2>&#9989; Sign-off Proof</h2>
   ${signoffLink?`<div style="margin-bottom:8px">&#128279; ${lnk(signoffLink,'View Sign-off Mail / Approval')}</div>`:''}
   ${signoffImg?`<img src="${signoffImg}" style="max-width:100%;max-height:220px;border-radius:7px;border:1px solid #90caf9;object-fit:contain;display:block" alt="Sign-off proof"/>`:''}
 </div>`:''}
-<p style="margin-top:24px;font-size:8pt;color:#aaa;text-align:center">CRONOS &nbsp;|&nbsp; Developer Report &nbsp;|&nbsp; ${now}</p>
+<p style="margin-top:24px;font-size:8pt;color:#aaa;text-align:center">Story Tracker &nbsp;|&nbsp; Developer Report &nbsp;|&nbsp; ${now}</p>
 </body></html>`;
   const blob=new Blob([html],{type:'text/html'});
   const url=URL.createObjectURL(blob);
