@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Story Tracker – Tester</title>
+  <link rel="stylesheet" href="shared.css"/>
+</head>
+<body>
+
+<a class="home-btn" href="index.html">&#127968; Home</a>
+
+<header style="background:var(--test)">
+  <div>
+    <h1>&#9989; Tester</h1>
+    <p>Defect tracking &bull; Test execution &bull; Pass / Fail progress</p>
+  </div>
+  <span class="badge" style="color:var(--test)">Tester Page &nbsp;|&nbsp; Story Tracker v3.0</span>
+</header>
+
+<!-- ══ TESTER INFO ══ -->
+<div class="section section-test">
+  <div class="section-title">
+    <span class="role-badge rb-test">&#9989; Tester Details</span>
+    <h2>Testing Information</h2>
+  </div>
+  <div class="field-grid">
+    <div class="field"><label>Tester Name</label>
+      <input type="text" id="test-name" placeholder="Full name of tester" oninput="autoSave()"/></div>
+    <div class="field"><label>Jira / Story Number</label>
+      <input type="text" id="test-jira" placeholder="e.g. DVNSPRINT-1234" oninput="autoSave()"/></div>
+    <div class="field"><label>Testing Start Date</label>
+      <input type="date" id="test-start" oninput="autoSave()"/></div>
+    <div class="field"><label>Testing End Date</label>
+      <input type="date" id="test-end" oninput="autoSave()"/></div>
+    <div class="field"><label>Total Test Scenarios</label>
+      <input type="number" min="0" id="test-total" placeholder="e.g. 25" oninput="calcTestProgress()"/></div>
+    <div class="field"><label>Scenarios Executed</label>
+      <input type="number" min="0" id="test-done" placeholder="e.g. 18" oninput="calcTestProgress()"/></div>
+    <div class="field"><label>Test Cases Passed</label>
+      <input type="number" min="0" id="test-pass" placeholder="e.g. 16" oninput="calcTestProgress()"/></div>
+    <div class="field"><label>Test Cases Failed</label>
+      <input type="number" min="0" id="test-fail" placeholder="e.g. 2" oninput="calcTestProgress()"/></div>
+    <div class="field span2"><label>Test Proof / Evidence Doc Link</label>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="url" id="test-proof-link" placeholder="Link to test evidence / proof document" oninput="autoSave();updateTestProofBtn()" style="flex:1"/>
+        <a class="open-link-btn" id="ob-test-proof" href="#" target="_blank" title="Open link" style="display:none;flex-shrink:0" onclick="return openTestProof()">&#128279;</a>
+      </div></div>
+  </div>
+
+  <div class="prog-row" style="margin-top:16px">
+    <span class="prog-label">Test Execution Progress</span>
+    <div class="bar-outer"><div class="bar-inner" id="testBar" style="background:linear-gradient(90deg,#00695c,#26a69a)"></div></div>
+    <span class="prog-pct" id="testPct" style="color:var(--test)">0 %</span>
+  </div>
+  <div id="test-summary" style="font-size:.82rem;color:#555;margin-top:4px">&nbsp;</div>
+</div>
+
+<!-- ══ DEFECT TRACKER ══ -->
+<div class="section section-defect">
+  <div class="section-title">
+    <span class="role-badge rb-defect" style="background:var(--defect-bg);color:var(--defect);border:1px solid var(--defect-border)">&#128030; Defect Tracker</span>
+    <h2>Defects Raised During Testing</h2>
+  </div>
+  <div id="defect-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  <button class="add-btn" style="margin-top:12px" onclick="addDefect()">&#43; Add Defect</button>
+</div>
+
+<div class="actions">
+  <button class="btn-test" onclick="downloadTesterReport()">&#11015; Download Tester Report (.json)</button>
+  <button class="btn-purple" onclick="downloadTesterHtml()">&#128196; Download Tester Report (.html)</button>
+  <button class="btn-reset" onclick="resetTester()">&#8635; Reset</button>
+</div>
+
+<footer>Story Tracker &nbsp;|&nbsp; Tester Page &nbsp;|&nbsp; March 2026</footer>
+
+<script>
+const TEST_IDS=['test-name','test-jira','test-start','test-end','test-total','test-done','test-pass','test-fail','test-proof-link'];
+const STATUS_OPT=[
+  {v:'open',     l:'Open',       cls:'s-open'},
+  {v:'progress', l:'In Progress',cls:'s-progress'},
+  {v:'resolved', l:'Resolved',   cls:'s-resolved'},
+  {v:'blocker',  l:'Blocker',    cls:'s-blocker'}
+];
+let defectCount=0;
+
+function storageKey(){return 'tracker_test_'+(document.getElementById('test-jira')?.value.trim()||'default');}
+
+function calcTestProgress(){
+  const total=parseInt(document.getElementById('test-total')?.value)||0;
+  const done =parseInt(document.getElementById('test-done')?.value)||0;
+  const pass =parseInt(document.getElementById('test-pass')?.value)||0;
+  const fail =parseInt(document.getElementById('test-fail')?.value)||0;
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('testBar').style.width=pct+'%';
+  document.getElementById('testPct').textContent=pct+' %';
+  document.getElementById('test-summary').textContent=
+    total>0?`${done}/${total} executed  |  ✓ ${pass} passed  |  ✗ ${fail} failed`:'Enter total scenarios above';
+  autoSave();
+}
+
+function autoSave(){
+  const s={};
+  TEST_IDS.forEach(id=>{const el=document.getElementById(id);if(el)s[id]=el.value;});
+  try{localStorage.setItem(storageKey(),JSON.stringify(s));saveDefects();}catch(e){}
+}
+
+function loadSaved(){
+  const raw=localStorage.getItem(storageKey());
+  if(!raw) return;
+  try{
+    const s=JSON.parse(raw);
+    TEST_IDS.forEach(id=>{const el=document.getElementById(id);if(el&&s[id]!==undefined)el.value=s[id];});
+    const defs=JSON.parse(localStorage.getItem(storageKey()+'_defects')||'[]');
+    document.getElementById('defect-list').innerHTML=''; defectCount=0;
+    defs.forEach(d=>addDefect(d));
+    calcTestProgress();
+  }catch(e){}
+}
+
+function addDefect(data){
+  defectCount++;
+  const id='defect-'+defectCount;
+  const div=document.createElement('div');
+  div.className='entry-card'; div.id=id;
+  const curStatus=data?.status||'open';
+  const curCls=STATUS_OPT.find(o=>o.v===curStatus)?.cls||'s-open';
+  const opts=STATUS_OPT.map(o=>`<option value="${o.v}"${o.v===curStatus?' selected':''}>${o.l}</option>`).join('');
+  div.innerHTML=`<button class="remove-btn" onclick="this.closest('.entry-card').remove();saveDefects()">&#10005;</button>
+    <div class="field-grid">
+      <div class="field"><label>Defect ID</label>
+        <input type="text" id="${id}-did" placeholder="SIVNSPRINT-0001" value="${data?.did||''}" oninput="saveDefects()"/></div>
+      <div class="field"><label>Date Raised</label>
+        <input type="date" id="${id}-date" value="${data?.date||''}" oninput="saveDefects()"/></div>
+      <div class="field"><label>Status</label>
+        <select id="${id}-status" class="status-sel ${curCls}" onchange="updateStatusStyle(this);saveDefects()">${opts}</select></div>
+      <div class="field span2"><label>Description</label>
+        <textarea id="${id}-desc" rows="2" placeholder="Defect description..." oninput="saveDefects()">${data?.desc||''}</textarea></div>
+    </div>`;
+  document.getElementById('defect-list').appendChild(div);
+}
+
+function updateStatusStyle(sel){
+  sel.className='status-sel';
+  const cls=STATUS_OPT.find(o=>o.v===sel.value)?.cls||'';
+  if(cls) sel.classList.add(cls);
+}
+
+function saveDefects(){
+  const defs=[];
+  document.querySelectorAll('#defect-list .entry-card').forEach(card=>{
+    const id=card.id;
+    defs.push({
+      did:  card.querySelector(`#${id}-did`)?.value||'',
+      date: card.querySelector(`#${id}-date`)?.value||'',
+      status:card.querySelector(`#${id}-status`)?.value||'open',
+      desc: card.querySelector(`#${id}-desc`)?.value||''
+    });
+  });
+  try{localStorage.setItem(storageKey()+'_defects',JSON.stringify(defs));}catch(e){}
+}
+
+function updateTestProofBtn(){
+  const val=document.getElementById('test-proof-link')?.value.trim();
+  const btn=document.getElementById('ob-test-proof');
+  if(btn) btn.style.display=val?'':'none';
+}
+
+function openTestProof(){
+  const url=document.getElementById('test-proof-link')?.value.trim();
+  if(url) window.open(url,'_blank');
+  return false;
+}
+
+function downloadTesterHtml(){
+  autoSave();
+  const defs=JSON.parse(localStorage.getItem(storageKey()+'_defects')||'[]');
+  const jira=document.getElementById('test-jira')?.value.trim()||'NoJira';
+  const name=document.getElementById('test-name')?.value.trim()||'—';
+  const testStart=document.getElementById('test-start')?.value||'—';
+  const testEnd=document.getElementById('test-end')?.value||'—';
+  const total=document.getElementById('test-total')?.value||'0';
+  const done=document.getElementById('test-done')?.value||'0';
+  const pass=document.getElementById('test-pass')?.value||'0';
+  const fail=document.getElementById('test-fail')?.value||'0';
+  const proofLink=document.getElementById('test-proof-link')?.value.trim()||'';
+  const progPct=total>0?Math.round(parseInt(done)/parseInt(total)*100):0;
+  const now=new Date().toLocaleString('en-GB');
+  const lnk=(url,txt)=>url?`<a href="${url}" target="_blank" style="color:#00695c">${txt||url}</a>`:'<span style="color:#9e9e9e">Not provided</span>';
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Tester Report – ${jira}</title>
+<style>
+  body{font-family:'Segoe UI',sans-serif;background:#f0faf9;color:#1c1c1c;padding:28px 22px}
+  h1{color:#00695c;margin-bottom:4px} h2{color:#00695c;font-size:1rem;margin:18px 0 8px;border-bottom:2px solid #80cbc4;padding-bottom:4px}
+  .meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+  .mb{background:#fff;border:1px solid #80cbc4;border-radius:8px;padding:10px 14px}
+  .mb label{font-size:8pt;font-weight:700;text-transform:uppercase;color:#00695c;display:block;margin-bottom:3px}
+  .mb-val{font-size:.92rem;color:#1c1c1c;word-break:break-word}
+  .sec{background:#fff;border:1px solid #80cbc4;border-radius:8px;padding:16px 20px;margin-bottom:14px}
+  .bar-outer{background:#e0e0e0;border-radius:20px;height:14px;overflow:hidden;margin:10px 0}
+  .bar-test{height:100%;background:linear-gradient(90deg,#00695c,#26a69a);border-radius:20px;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  table{border-collapse:collapse;width:100%;font-size:9pt;margin-top:8px}
+  th{background:#00695c;color:#fff;padding:7px 10px;text-align:left}
+  tr:nth-child(even){background:#e0f2f1} td{padding:7px 10px;vertical-align:top}
+  a{color:#00695c;text-decoration:none} a:hover{text-decoration:underline}
+  @media print{body{background:#fff}}
+</style></head><body>
+<h1>&#9989; Tester Report</h1>
+<p style="color:#888;font-size:8pt;margin-bottom:16px">Generated: ${now} &nbsp;|&nbsp; Story Tracker v3.0</p>
+<div class="meta">
+  <div class="mb"><label>Jira</label><div class="mb-val">${jira}</div></div>
+  <div class="mb"><label>Tester</label><div class="mb-val">${esc(name)}</div></div>
+  <div class="mb"><label>Start</label><div class="mb-val">${testStart}</div></div>
+  <div class="mb"><label>End</label><div class="mb-val">${testEnd}</div></div>
+  <div class="mb"><label>Total Scenarios</label><div class="mb-val">${total}</div></div>
+  <div class="mb"><label>Executed</label><div class="mb-val">${done}</div></div>
+  <div class="mb"><label>Passed</label><div class="mb-val" style="color:#2e7d32;font-weight:700">${pass}</div></div>
+  <div class="mb"><label>Failed</label><div class="mb-val" style="color:#b71c1c;font-weight:700">${fail}</div></div>
+  ${proofLink?`<div class="mb" style="grid-column:1/-1"><label>Test Proof / Evidence</label><div class="mb-val">${lnk(proofLink,'&#128279; Open Test Evidence Doc')}</div></div>`:''}
+</div>
+<div class="sec"><h2>&#128200; Execution Progress &nbsp;<span style="color:#00695c">${progPct}%</span></h2>
+<div class="bar-outer"><div class="bar-test" style="width:${progPct}%"></div></div>
+<p style="font-size:.84rem;color:#555;margin-top:4px">${done}/${total} executed &nbsp;|&nbsp; &#10003; ${pass} passed &nbsp;|&nbsp; &#10007; ${fail} failed</p></div>
+${defs.length?`<div class="sec"><h2>&#128030; Defects (${defs.length})</h2>
+<table><thead><tr><th>Defect ID</th><th>Description</th><th>Date Raised</th><th>Status</th></tr></thead>
+<tbody>${defs.map(d=>{const c=d.status==='resolved'?'#2e7d32':d.status==='blocker'?'#b71c1c':d.status==='progress'?'#1565c0':'#e65100';return `<tr><td style="font-weight:700">${esc(d.did||'')}</td><td>${esc(d.desc||'')}</td><td>${d.date||''}</td><td style="font-weight:700;color:${c}">${d.status||''}</td></tr>`;}).join('')}</tbody></table></div>`:''}
+<p style="margin-top:24px;font-size:8pt;color:#aaa;text-align:center">Story Tracker &nbsp;|&nbsp; Tester Report &nbsp;|&nbsp; ${now}</p>
+</body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`tester_report_${jira}_${new Date().toISOString().slice(0,10)}.html`;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
+}
+
+function downloadTesterReport(){
+  autoSave();
+  const defs=JSON.parse(localStorage.getItem(storageKey()+'_defects')||'[]');
+  const data={
+    role:'tester',
+    jira:     document.getElementById('test-jira')?.value.trim()||'',
+    name:     document.getElementById('test-name')?.value.trim()||'',
+    testStart:document.getElementById('test-start')?.value||'',
+    testEnd:  document.getElementById('test-end')?.value||'',
+    total:    document.getElementById('test-total')?.value||'0',
+    done:     document.getElementById('test-done')?.value||'0',
+    pass:     document.getElementById('test-pass')?.value||'0',
+    fail:     document.getElementById('test-fail')?.value||'0',
+    proofLink:document.getElementById('test-proof-link')?.value.trim()||'',
+    defects:  defs,
+    exportedAt: new Date().toISOString()
+  };
+  const jira=data.jira||'NoJira';
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`tester_report_${jira}_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
+}
+
+function resetTester(){
+  if(!confirm('Clear all tester data?')) return;
+  const key=storageKey();
+  try{localStorage.removeItem(key);localStorage.removeItem(key+'_defects');}catch(e){}
+  TEST_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('defect-list').innerHTML=''; defectCount=0;
+  calcTestProgress();
+}
+
+(function(){
+  const el=document.getElementById('test-start');
+  if(el&&!el.value)el.value=new Date().toISOString().split('T')[0];
+  loadSaved();
+  updateTestProofBtn();
+})();
+</script>
+</body>
+</html>

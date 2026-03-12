@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Story Tracker – Developer</title>
+  <link rel="stylesheet" href="shared.css"/>
+</head>
+<body>
+
+<a class="home-btn" href="index.html">&#127968; Home</a>
+
+<header style="background:var(--dev)">
+  <div>
+    <h1>&#128187; Developer</h1>
+    <p>9-step checklist &bull; Code progress &bull; Review &bull; Sign-off</p>
+  </div>
+  <span class="badge" style="color:var(--dev)">Dev Page &nbsp;|&nbsp; Story Tracker v3.0</span>
+</header>
+
+<!-- ══ DEV INFO ══ -->
+<div class="section section-dev">
+  <div class="section-title">
+    <span class="role-badge rb-dev">&#128187; Developer Details</span>
+    <h2>Story &amp; Developer Info</h2>
+  </div>
+  <div class="field-grid">
+    <div class="field"><label>Developer Name</label>
+      <input type="text" id="dev-name" placeholder="Full name" oninput="autoSave()"/></div>
+    <div class="field"><label>Jira / Story Number</label>
+      <input type="text" id="dev-jira" placeholder="e.g. DVNSPRINT-1234" oninput="autoSave()"/></div>
+    <div class="field"><label>Development Start Date</label>
+      <input type="date" id="dev-start" oninput="autoSave()"/></div>
+    <div class="field"><label>Development End Date</label>
+      <input type="date" id="dev-end" oninput="autoSave()"/></div>
+    <div class="field"><label>Reviewer Name</label>
+      <input type="text" id="dev-reviewer" placeholder="Prasanna / Shilpa / Vishal" oninput="autoSave()"/></div>
+    <div class="field"><label>Review Date</label>
+      <input type="date" id="dev-review-date" oninput="autoSave()"/></div>
+    <div class="field span2"><label>Code Review Recording Link</label>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="url" id="dev-review-rec" placeholder="Teams / recording URL" oninput="autoSave();updateOpenBtn('dev-review-rec','ob-rec')" style="flex:1"/>
+        <a class="open-link-btn" id="ob-rec" href="#" target="_blank" title="Open recording" style="display:none;flex-shrink:0" onclick="return openLink('dev-review-rec')">&#128279;</a>
+      </div></div>
+    <div class="field span2">
+      <label>Code Implementation Progress</label>
+      <div class="pct-row">
+        <input type="range" id="dev-impl-pct" min="0" max="100" value="0"
+          oninput="document.getElementById('dev-impl-val').textContent=this.value+'%';autoSave()"/>
+        <span class="pct-val" id="dev-impl-val">0%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CHECKLIST ══ -->
+<div class="section section-dev">
+  <div class="section-title">
+    <span class="role-badge rb-dev">&#9989; Checklist</span>
+    <h2>9-Step Development Checklist</h2>
+  </div>
+
+  <div class="prog-row">
+    <span class="prog-label">Dev Progress</span>
+    <div class="bar-outer"><div class="bar-inner" id="devBar" style="background:linear-gradient(90deg,#1565c0,#42a5f5)"></div></div>
+    <span class="prog-pct" id="devPct" style="color:var(--dev)">0 %</span>
+  </div>
+
+  <div class="checklist" id="dev-checklist">
+
+    <div class="cl-item" id="dci-1">
+      <input type="checkbox" id="dc-1" onchange="devCheck()"/>
+      <div style="flex:1"><span class="cl-label">Jira Requirement &amp; FSD Understanding</span></div>
+    </div>
+
+    <div class="cl-item" id="dci-2">
+      <input type="checkbox" id="dc-2" onchange="devCheck()"/>
+      <div style="flex:1"><span class="cl-label">WBS Creation</span>
+        <div class="cl-link"><label>WBS Link:</label>
+          <input type="url" id="dl-wbs" placeholder="Link to WBS document" oninput="autoSave();updateOpenBtn('dl-wbs','ob-wbs')"/>
+          <a class="open-link-btn" id="ob-wbs" href="#" target="_blank" title="Open link" style="display:none" onclick="return openLink('dl-wbs')">&#128279;</a></div>
+      </div>
+    </div>
+
+    <div class="cl-item" id="dci-3">
+      <input type="checkbox" id="dc-3" onchange="devCheck()"/>
+      <div style="flex:1"><span class="cl-label">TDD Document</span>
+        <div class="cl-link"><label>TDD Link:</label>
+          <input type="url" id="dl-tdd" placeholder="Link to TDD document" oninput="autoSave();updateOpenBtn('dl-tdd','ob-tdd')"/>
+          <a class="open-link-btn" id="ob-tdd" href="#" target="_blank" title="Open link" style="display:none" onclick="return openLink('dl-tdd')">&#128279;</a></div>
+      </div>
+    </div>
+
+    <div class="cl-item" id="dci-4">
+      <input type="checkbox" id="dc-4" onchange="devCheck()"/>
+      <div style="flex:1"><span class="cl-label">Code Implementation</span></div>
+    </div>
+
+    <div class="cl-item" id="dci-5">
+      <input type="checkbox" id="dc-5" onchange="devCheck()"/>
+      <div style="flex:1"><span class="cl-label">Unit Testing</span>
+        <div class="cl-link"><label>UT Doc Link:</label>
+          <input type="url" id="dl-ut" placeholder="Link to UT document" oninput="autoSave();updateOpenBtn('dl-ut','ob-ut')"/>
+          <a class="open-link-btn" id="ob-ut" href="#" target="_blank" title="Open link" style="display:none" onclick="return openLink('dl-ut')">&#128279;</a></div>
+      </div>
+    </div>
+
+    <div class="cl-item" id="dci-6">
+      <input type="checkbox" id="dc-6" onchange="devCheck()"/>
+      <div style="flex:1"><span class="cl-label">Full Impact Analysis (Post-Dev)</span>
+        <div class="cl-link"><label>Full Impact Link:</label>
+          <input type="url" id="dl-fullimpact" placeholder="Link to full impact analysis" oninput="autoSave();updateOpenBtn('dl-fullimpact','ob-fullimpact')"/>
+          <a class="open-link-btn" id="ob-fullimpact" href="#" target="_blank" title="Open link" style="display:none" onclick="return openLink('dl-fullimpact')">&#128279;</a></div>
+      </div>
+    </div>
+
+    <div class="cl-item" id="dci-7">
+      <input type="checkbox" id="dc-7" onchange="devCheck()"/>
+      <div style="flex:1">
+        <span class="cl-label">Code Review</span>
+        <div style="margin-top:6px;font-size:.82rem;color:#666">
+          Reviewer: &nbsp;
+          <span class="chip">Prasanna</span><span class="chip" style="margin-left:4px">Shilpa</span><span class="chip" style="margin-left:4px">Vishal</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cl-item" id="dci-8">
+      <input type="checkbox" id="dc-8" onchange="devCheck()"/>
+      <div style="flex:1">
+        <span class="cl-label">Sign-off Mail (Code Review Completion)</span>
+        <div class="signoff-widget" style="margin-top:8px">
+          <div class="so-toggle">
+            <button class="so-tab-btn active" id="dev-so-tab-link" onclick="switchSOMode('dev','link')">&#128279; Paste Link</button>
+            <button class="so-tab-btn" id="dev-so-tab-img" onclick="switchSOMode('dev','img')">&#128247; Upload Image</button>
+          </div>
+          <div id="dev-so-link-pane">
+            <div class="cl-link">
+              <label>Mail / Proof Link:</label>
+              <input type="url" id="dl-signoff" placeholder="Link to sign-off email or approval proof" oninput="autoSave()"/>
+            </div>
+          </div>
+          <div id="dev-so-img-pane" style="display:none">
+            <div class="img-upload-area" onclick="document.getElementById('dev-so-file').click()">
+              <input type="file" id="dev-so-file" accept="image/*" onchange="handleSignoffImage('dev-so-file','dev-so-preview','dev_img')"/>
+              <label class="img-upload-lbl">&#128247; Click to upload sign-off screenshot</label>
+            </div>
+            <div class="signoff-preview" id="dev-so-preview">
+              <img src="" alt="Dev sign-off proof"/>
+              <button class="clear-img" onclick="clearSignoffImage('dev-so-preview','dev_img')" title="Remove">&#10005;</button>
+            </div>
+          </div>
+        </div>
+        <span class="tag tag-sign" style="display:inline-block">Sign-off mandatory before release</span>
+      </div>
+    </div>
+
+    <div class="cl-item" id="dci-9">
+      <input type="checkbox" id="dc-9" onchange="devCheck()"/>
+      <div style="flex:1">
+        <span class="cl-label">All Documents placed in Release Track Folder</span>
+        <div style="margin-top:6px;font-size:.8rem;color:#888">
+          Includes: Impact Analysis &bull; WBS &bull; TDD &bull; UT Document &bull; Review Recording &bull; Sign-off Mail
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="actions">
+  <button class="btn-dev" onclick="downloadDevReport()">&#11015; Download Dev Report (.json)</button>
+  <button class="btn-purple" onclick="downloadDevHtml()">&#128196; Download Dev Report (.html)</button>
+  <button class="btn-reset" onclick="resetDev()">&#8635; Reset</button>
+</div>
+
+<footer>Story Tracker &nbsp;|&nbsp; Developer Page &nbsp;|&nbsp; March 2026</footer>
+
+<script>
+const DEV_STEPS=9;
+const DEV_IDS=['dev-name','dev-jira','dev-start','dev-end','dev-reviewer','dev-review-date','dev-review-rec',
+  'dl-wbs','dl-tdd','dl-ut','dl-fullimpact','dl-signoff'];
+const CB_IDS=Array.from({length:DEV_STEPS},(_,i)=>'dc-'+(i+1));
+
+function storageKey(){return 'tracker_dev_'+(document.getElementById('dev-jira')?.value.trim()||'default');}
+
+function devCheck(){
+  const done=CB_IDS.filter(id=>document.getElementById(id)?.checked).length;
+  const p=Math.round(done/DEV_STEPS*100);
+  document.getElementById('devBar').style.width=p+'%';
+  document.getElementById('devPct').textContent=p+' %';
+  for(let i=1;i<=DEV_STEPS;i++){
+    const item=document.getElementById('dci-'+i);
+    const cb=document.getElementById('dc-'+i);
+    if(item&&cb) item.classList.toggle('done-item',cb.checked);
+  }
+  autoSave();
+}
+
+function autoSave(){
+  const s={fields:{},cbs:{}};
+  DEV_IDS.forEach(id=>{const el=document.getElementById(id);if(el)s.fields[id]=el.value;});
+  CB_IDS.forEach(id=>{const el=document.getElementById(id);if(el)s.cbs[id]=el.checked;});
+  s.implPct=document.getElementById('dev-impl-pct')?.value||0;
+  try{localStorage.setItem(storageKey(),JSON.stringify(s));}catch(e){}
+}
+
+function loadSaved(){
+  const raw=localStorage.getItem(storageKey());
+  if(!raw) return;
+  try{
+    const s=JSON.parse(raw);
+    if(s.fields) DEV_IDS.forEach(id=>{const el=document.getElementById(id);if(el&&s.fields[id]!==undefined)el.value=s.fields[id];});
+    if(s.cbs) CB_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.checked=!!s.cbs[id];});
+    if(s.implPct){const sl=document.getElementById('dev-impl-pct');if(sl){sl.value=s.implPct;document.getElementById('dev-impl-val').textContent=s.implPct+'%';}}
+    const img=localStorage.getItem(storageKey()+'_dev_img');
+    if(img){const pd=document.getElementById('dev-so-preview');if(pd){pd.querySelector('img').src=img;pd.style.display='block';}switchSOMode('dev','img');}
+    devCheck();
+  }catch(e){}
+}
+
+function handleSignoffImage(inputId,previewId,storageId){
+  const file=document.getElementById(inputId)?.files?.[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const b64=e.target.result;
+    try{localStorage.setItem(storageKey()+'_'+storageId,b64);}catch(err){}
+    const pd=document.getElementById(previewId);
+    if(pd){pd.querySelector('img').src=b64;pd.style.display='block';}
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearSignoffImage(previewId,storageId){
+  const pd=document.getElementById(previewId);
+  if(pd){pd.querySelector('img').src='';pd.style.display='none';}
+  try{localStorage.removeItem(storageKey()+'_'+storageId);}catch(e){}
+  switchSOMode('dev','link');
+}
+
+function switchSOMode(prefix,mode){
+  document.getElementById(prefix+'-so-link-pane').style.display=mode==='link'?'':'none';
+  document.getElementById(prefix+'-so-img-pane').style.display=mode==='img'?'':'none';
+  document.getElementById(prefix+'-so-tab-link').classList.toggle('active',mode==='link');
+  document.getElementById(prefix+'-so-tab-img').classList.toggle('active',mode==='img');
+}
+
+function downloadDevReport(){
+  autoSave();
+  const signoffImg=localStorage.getItem(storageKey()+'_dev_img')||'';
+  const data={
+    role:'dev',
+    jira: document.getElementById('dev-jira')?.value.trim()||'',
+    name: document.getElementById('dev-name')?.value.trim()||'',
+    devStart:   document.getElementById('dev-start')?.value||'',
+    devEnd:     document.getElementById('dev-end')?.value||'',
+    reviewer:   document.getElementById('dev-reviewer')?.value.trim()||'',
+    reviewDate: document.getElementById('dev-review-date')?.value||'',
+    reviewRec:  document.getElementById('dev-review-rec')?.value.trim()||'',
+    implPct:    document.getElementById('dev-impl-pct')?.value||0,
+    checkboxes: CB_IDS.map(id=>!!document.getElementById(id)?.checked),
+    links:{
+      wbs:       document.getElementById('dl-wbs')?.value.trim()||'',
+      tdd:       document.getElementById('dl-tdd')?.value.trim()||'',
+      ut:        document.getElementById('dl-ut')?.value.trim()||'',
+      fullImpact:document.getElementById('dl-fullimpact')?.value.trim()||''
+    },
+    signoffLink:document.getElementById('dl-signoff')?.value.trim()||'',
+    signoffImg,
+    exportedAt: new Date().toISOString()
+  };
+  const jira=data.jira||'NoJira';
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`dev_report_${jira}_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
+}
+
+function updateOpenBtn(inputId, btnId){
+  const val=document.getElementById(inputId)?.value.trim();
+  const btn=document.getElementById(btnId);
+  if(btn) btn.style.display=val?'':'none';
+}
+
+function openLink(inputId){
+  const url=document.getElementById(inputId)?.value.trim();
+  if(url){window.open(url,'_blank');} return false;
+}
+
+function initOpenBtns(){
+  [['dl-wbs','ob-wbs'],['dl-tdd','ob-tdd'],['dl-ut','ob-ut'],
+   ['dl-fullimpact','ob-fullimpact'],['dev-review-rec','ob-rec']].forEach(([inp,btn])=>updateOpenBtn(inp,btn));
+}
+
+function downloadDevHtml(){
+  autoSave();
+  const signoffImg=localStorage.getItem(storageKey()+'_dev_img')||'';
+  const jira=document.getElementById('dev-jira')?.value.trim()||'NoJira';
+  const name=document.getElementById('dev-name')?.value.trim()||'—';
+  const devStart=document.getElementById('dev-start')?.value||'—';
+  const devEnd=document.getElementById('dev-end')?.value||'—';
+  const reviewer=document.getElementById('dev-reviewer')?.value.trim()||'—';
+  const reviewDate=document.getElementById('dev-review-date')?.value||'—';
+  const reviewRec=document.getElementById('dev-review-rec')?.value.trim()||'';
+  const implPct=document.getElementById('dev-impl-pct')?.value||0;
+  const signoffLink=document.getElementById('dl-signoff')?.value.trim()||'';
+  const links={wbs:document.getElementById('dl-wbs')?.value.trim()||'',tdd:document.getElementById('dl-tdd')?.value.trim()||'',ut:document.getElementById('dl-ut')?.value.trim()||'',fullImpact:document.getElementById('dl-fullimpact')?.value.trim()||''};
+  const now=new Date().toLocaleString('en-GB');
+  const lnk=(url,txt)=>url?`<a href="${url}" target="_blank" style="color:#1565c0">${txt||url}</a>`:'<span style="color:#9e9e9e">Not provided</span>';
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const devLabels=[['Jira Req & FSD Understanding',''],['WBS Creation',links.wbs],['TDD Document',links.tdd],['Code Implementation',''],['Unit Testing',links.ut],['Full Impact Analysis (Post-Dev)',links.fullImpact],['Code Review',''],['Sign-off Mail',signoffLink],['Documents in Release Track','']];
+  const done=CB_IDS.map(id=>!!document.getElementById(id)?.checked);
+  const doneCount=done.filter(Boolean).length;
+  const progPct=Math.round(doneCount/DEV_STEPS*100);
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Dev Report – ${jira}</title>
+<style>
+  body{font-family:'Segoe UI',sans-serif;background:#f0f7ff;color:#1c1c1c;padding:28px 22px}
+  h1{color:#1565c0;margin-bottom:4px} h2{color:#1565c0;font-size:1rem;margin:18px 0 8px;border-bottom:2px solid #90caf9;padding-bottom:4px}
+  .meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+  .mb{background:#fff;border:1px solid #90caf9;border-radius:8px;padding:10px 14px}
+  .mb label{font-size:8pt;font-weight:700;text-transform:uppercase;color:#1565c0;display:block;margin-bottom:3px}
+  .mb-val{font-size:.92rem;color:#1c1c1c;word-break:break-word}
+  .sec{background:#fff;border:1px solid #90caf9;border-radius:8px;padding:16px 20px;margin-bottom:14px}
+  .bar-outer{background:#e0e0e0;border-radius:20px;height:14px;overflow:hidden;margin:10px 0}
+  .bar-dev{height:100%;background:linear-gradient(90deg,#1565c0,#42a5f5);border-radius:20px;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  table{border-collapse:collapse;width:100%;font-size:9pt;margin-top:8px}
+  th{background:#1565c0;color:#fff;padding:7px 10px;text-align:left}
+  tr:nth-child(even){background:#e3f2fd} td{padding:7px 10px;vertical-align:middle}
+  a{color:#1565c0;text-decoration:none} a:hover{text-decoration:underline}
+  @media print{body{background:#fff}}
+</style></head><body>
+<h1>&#128187; Developer Report</h1>
+<p style="color:#888;font-size:8pt;margin-bottom:16px">Generated: ${now} &nbsp;|&nbsp; Story Tracker v3.0</p>
+<div class="meta">
+  <div class="mb"><label>Jira</label><div class="mb-val">${jira}</div></div>
+  <div class="mb"><label>Developer</label><div class="mb-val">${esc(name)}</div></div>
+  <div class="mb"><label>Start</label><div class="mb-val">${devStart}</div></div>
+  <div class="mb"><label>End</label><div class="mb-val">${devEnd}</div></div>
+  <div class="mb"><label>Reviewer</label><div class="mb-val">${esc(reviewer)}</div></div>
+  <div class="mb"><label>Review Date</label><div class="mb-val">${reviewDate}</div></div>
+  <div class="mb"><label>Code Progress</label><div class="mb-val">${implPct}%</div></div>
+  ${reviewRec?`<div class="mb"><label>Review Recording</label><div class="mb-val">${lnk(reviewRec,'&#128253; Open Recording')}</div></div>`:''}
+</div>
+<div class="sec"><h2>&#9989; 9-Step Checklist &nbsp;<span style="color:#1565c0">${progPct}% complete</span></h2>
+<div class="bar-outer"><div class="bar-dev" style="width:${progPct}%"></div></div>
+<table><thead><tr><th style="width:36px">#</th><th>Step</th><th style="width:220px">Document Link</th><th style="width:100px;text-align:center">Status</th></tr></thead>
+<tbody>${devLabels.map((row,i)=>{const isDone=done[i];const [label,linkUrl]=row;return `<tr style="background:${isDone?'#e8f5e9':'#fff'}"><td style="text-align:center">${i+1}</td><td>${esc(label)}</td><td>${linkUrl?lnk(linkUrl,'&#128279; Open'):'—'}</td><td style="text-align:center;font-weight:700;color:${isDone?'#2e7d32':'#9e9e9e'}">${isDone?'&#10003; Done':'&#9711; Pending'}</td></tr>`;}).join('')}</tbody></table></div>
+${(signoffLink||signoffImg)?`<div class="sec"><h2>&#9989; Sign-off Proof</h2>
+  ${signoffLink?`<div style="margin-bottom:8px">&#128279; ${lnk(signoffLink,'View Sign-off Mail / Approval')}</div>`:''}
+  ${signoffImg?`<img src="${signoffImg}" style="max-width:100%;max-height:220px;border-radius:7px;border:1px solid #90caf9;object-fit:contain;display:block" alt="Sign-off proof"/>`:''}
+</div>`:''}
+<p style="margin-top:24px;font-size:8pt;color:#aaa;text-align:center">Story Tracker &nbsp;|&nbsp; Developer Report &nbsp;|&nbsp; ${now}</p>
+</body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`dev_report_${jira}_${new Date().toISOString().slice(0,10)}.html`;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
+}
+
+function resetDev(){
+  if(!confirm('Clear all developer data?')) return;
+  const key=storageKey();
+  try{localStorage.removeItem(key);localStorage.removeItem(key+'_dev_img');}catch(e){}
+  DEV_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  CB_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  const sl=document.getElementById('dev-impl-pct');if(sl){sl.value=0;document.getElementById('dev-impl-val').textContent='0%';}
+  const pd=document.getElementById('dev-so-preview');if(pd){pd.querySelector('img').src='';pd.style.display='none';}
+  devCheck();
+}
+
+(function(){
+  const el=document.getElementById('dev-start');
+  if(el&&!el.value)el.value=new Date().toISOString().split('T')[0];
+  loadSaved();
+  devCheck();
+  initOpenBtns();
+})();
+</script>
+</body>
+</html>
